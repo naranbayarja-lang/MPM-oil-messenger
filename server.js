@@ -3,7 +3,7 @@ function handleMessage(sender_psid, received_message) {
   let response;
 
   if (!text) {
-    response = { text: "Ойлгосонгүй 😅" };
+    response = { text: "Зөвхөн текст мессеж ойлгоно 😅" };
   }
 
   else if (text.includes("hi") || text.includes("сайн")) {
@@ -30,7 +30,6 @@ function handleMessage(sender_psid, received_message) {
     };
   }
 
-  // 👉 ЭНД ЧИНИЙ ХАЯГ ОРНО
   else if (text.includes("4") || text.includes("холбоо")) {
     response = {
       text: `🚗 Таны хөдөлгүүрт тохирсон, баталгаатай сонголт
