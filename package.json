@@ -1,3 +1,4 @@
+{
   "name": "mpm-oil-messenger",
   "version": "1.0.0",
   "description": "Messenger chatbot",
@@ -10,3 +11,4 @@
     "node-fetch": "^2.6.7",
     "body-parser": "^1.20.2"
   }
+}
