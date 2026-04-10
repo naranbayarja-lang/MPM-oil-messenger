@@ -1,3 +1,9 @@
+import express from "express";
+
+const app = express();
+app.use(express.json());
+
+// ✅ WEBHOOK VERIFY (Meta-д зориулсан)
 app.get("/webhook", (req, res) => {
   const VERIFY_TOKEN = "mpm2026";
 
@@ -11,4 +17,13 @@ app.get("/webhook", (req, res) => {
   } else {
     res.sendStatus(403);
   }
+});
+
+// тест
+app.get("/", (req, res) => {
+  res.send("Server ажиллаж байна");
+});
+
+app.listen(3000, () => {
+  console.log("Server started on port 3000");
 });
