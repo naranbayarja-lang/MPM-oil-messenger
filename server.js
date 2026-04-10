@@ -1,30 +1,29 @@
-import express from "express";
+const PAGE_ACCESS_TOKEN = "ЧИНИЙ_TOKEN";
 
-const app = express();
-app.use(express.json());
+app.post("/webhook", async (req, res) => {
+  const body = req.body;
 
-const VERIFY_TOKEN = "mpm2026";
+  if (body.object === "page") {
+    for (const entry of body.entry) {
+      for (const event of entry.messaging) {
+        if (event.message) {
+          const sender = event.sender.id;
 
-// 🔥 Webhook verify (Facebook GET)
-app.get("/webhook", (req, res) => {
-  const mode = req.query["hub.mode"];
-  const token = req.query["hub.verify_token"];
-  const challenge = req.query["hub.challenge"];
-
-  if (mode && token === VERIFY_TOKEN) {
-    console.log("Webhook verified!");
-    return res.status(200).send(challenge);
-  } else {
-    return res.sendStatus(403);
+          await fetch(
+            `https://graph.facebook.com/v18.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                recipient: { id: sender },
+                message: { text: "Сайн байна! MPM chatbot ажиллаж байна 🚀" }
+              })
+            }
+          );
+        }
+      }
+    }
   }
-});
 
-// 🔥 Receive messages (POST)
-app.post("/webhook", (req, res) => {
-  console.log("Incoming:", JSON.stringify(req.body, null, 2));
   res.sendStatus(200);
-});
-
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
 });
