@@ -1,0 +1,19 @@
+import express from "express";
+
+const app = express();
+app.use(express.json());
+
+// test route
+app.get("/", (req, res) => {
+  res.send("MPM chatbot ажиллаж байна 🚀");
+});
+
+// webhook verify (дараа хэрэгтэй)
+app.get("/webhook", (req, res) => {
+  res.send("Webhook endpoint ready");
+});
+
+app.listen(3000, () => {
+  console.log("Server started on port 3000");
+}); 
+add server file
