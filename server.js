@@ -1,21 +1,22 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 
-// ⚠️ ЭНД ШИНЭ PAGE TOKEN-ОО ТАВЬ
-const PAGE_ACCESS_TOKEN = "ЭНД_ӨӨРИЙН_TOKEN";
+const VERIFY_TOKEN = "mpm2026"; // Meta дээр хийсэн verify token
+const PAGE_ACCESS_TOKEN = "ЭНД ӨӨРИЙН TOKEN ОРУУЛ";
 
-// test route
+/**
+ * ROOT TEST
+ */
 app.get("/", (req, res) => {
-  res.send("Server is running ✅");
+  res.send("MPM BOT WORKING 🚀");
 });
 
-// webhook verify
+/**
+ * WEBHOOK VERIFY (Meta шалгадаг)
+ */
 app.get("/webhook", (req, res) => {
-  const VERIFY_TOKEN = "mpm2026";
-
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
@@ -28,21 +29,21 @@ app.get("/webhook", (req, res) => {
   }
 });
 
-// webhook receive message
+/**
+ * RECEIVE MESSAGE
+ */
 app.post("/webhook", async (req, res) => {
-  console.log("Incoming:", JSON.stringify(req.body, null, 2));
-
   const body = req.body;
 
   if (body.object === "page") {
-    for (const entry of body.entry) {
-      const event = entry.messaging[0];
-      const sender = event.sender.id;
+    body.entry.forEach((entry) => {
+      const webhook_event = entry.messaging[0];
+      const sender_psid = webhook_event.sender.id;
 
-      if (event.message) {
-        await sendMessage(sender, "Сайн байна! 👋");
+      if (webhook_event.message) {
+        handleMessage(sender_psid, webhook_event.message);
       }
-    }
+    });
 
     res.status(200).send("EVENT_RECEIVED");
   } else {
@@ -50,33 +51,45 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
-// send message function
-async function sendMessage(sender_psid, text) {
-  try {
-    const response = await fetch(
-      `https://graph.facebook.com/v17.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          recipient: { id: sender_psid },
-          message: { text }
-        })
-      }
-    );
+/**
+ * HANDLE MESSAGE
+ */
+function handleMessage(sender_psid, received_message) {
+  let response;
 
-    const data = await response.json();
-    console.log("Message sent:", data);
-  } catch (error) {
-    console.error("Send error:", error);
+  if (received_message.text) {
+    response = {
+      text: `Сайн байна 👋\nТа: "${received_message.text}" гэж бичлээ`,
+    };
   }
+
+  callSendAPI(sender_psid, response);
 }
 
-// ⚠️ ЧУХАЛ (Render дээр)
+/**
+ * SEND MESSAGE BACK
+ */
+async function callSendAPI(sender_psid, response) {
+  await fetch(
+    `https://graph.facebook.com/v19.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        recipient: { id: sender_psid },
+        message: response,
+      }),
+    }
+  );
+}
+
+/**
+ * START SERVER
+ */
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log("SERVER STARTED 🚀 on port " + PORT);
+  console.log("SERVER RUNNING 🚀");
 });
